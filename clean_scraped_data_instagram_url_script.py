@@ -38,9 +38,9 @@ for x in range(len(matrix[heading_row])):
 matrix = np.delete(matrix, columns_to_remove, axis = 1)
 
 #create matrix for followers, following and posts
-placeholder = np.zeros((len(matrix), 3), dtype="S")
+#placeholder = np.zeros((len(matrix), 3), dtype=str)
 
-placeholder[0] = ["Followers", "Following", "Posts"]
+placehold = [["Followers", "Following", "Posts"]]
 
 description = find_heading_title("description")
 title = find_heading_title("title")
@@ -76,12 +76,45 @@ while i < len(matrix):
                 #print(row[j], check_string.count(keyword[j]))
 
             if check_validity(row[j]) == False: row[j] = ""
-                
-                
         else: 
             row[j] = ""
         j+=1
-    print(row)
+    
+    placehold.append(row)
     i+=1
+    placeholder = np.array(placehold)
+
+
+#find instagram handles
+description = find_heading_title("description")
+title = find_heading_title("title")
+instagram_handles = [["Instagram Handles"]]
+email_address = [["email_address"]]
+
+for i in range(1, len(matrix)):
+    check_string = (str(matrix[i, description][0]) + " " + str(matrix[i, title][0])).replace("," , "").replace("(", "").replace(")", "").lower().split(" ")
+    handles = ""
+    email = ""
+
+    for x in range(len(check_string)):
+        #if check_string[x].endswith("."): check_string[x].strip(".")
+        check_string[x] = check_string[x].strip("â€œ¢/").replace("artists:", "")
+        if check_string[x].startswith("@"): handles = handles + " " + check_string[x].strip(".")
+        if "@" in check_string[x] and not check_string[x].startswith("@"): email = email + " " + check_string[x].strip(".")
+    handles = handles.strip()
+    instagram_handles.append(handles)
+
+    email = email.strip()
+    email_address.append(email)
+
+print(email_address)
+
+#combine matrices
+matrix = np.concatenate((matrix, placeholder), axis=1)
+
+#save matrix as data fram and file
+data_frame = pd.DataFrame(matrix)
+data_frame.to_csv(f"cleaned_{file_name}.csv", index=False, header=False)
+
 
 #print(placeholder)
